@@ -20,40 +20,41 @@ enum class CreditCardVendor
 	JCB
 };
 
-CreditCardVendor GetCreditCardVendor(string &cardNumber)
+CreditCardVendor GetCreditCardVendor(const string &inCreditCardNumber)
 {
-	cardNumber.erase(remove_if(cardNumber.begin(), cardNumber.end(), isspace), cardNumber.end());
-	int cardNumberlength = cardNumber.length();
-	int firstSecondDigits = stoi(cardNumber.substr(0,2));
-	int thirdFourthDigits = stoi(cardNumber.substr(2, 2));
+	auto number = inCreditCardNumber;
+	number.erase(remove_if(number.begin(), number.end(), isspace), number.end());
+	int length = number.length();
+	int firstPairOfDigits = stoi(number.substr(0,2));
+	int secondPairOfDigits = stoi(number.substr(2, 2));
 
-	if (cardNumberlength < MIN_LENGTH || cardNumberlength > MAX_LENGTH || !all_of(cardNumber.begin(), cardNumber.end(), isdigit))
+	if (length < MIN_LENGTH || length > MAX_LENGTH || !all_of(number.begin(), number.end(), isdigit))
 	{
 		return CreditCardVendor::UNKNOWN;
 	}
-	else if (firstSecondDigits/10 == 4
-		&& (cardNumberlength == 13 || cardNumberlength == 16 || cardNumberlength == 19))
+	else if (firstPairOfDigits/10 == 4
+		&& (length == 13 || length == 16 || length == 19))
 	{
 		return CreditCardVendor::VISA;
 	}
-	else if ((firstSecondDigits == 50 || (firstSecondDigits >= 56 && firstSecondDigits <= 69))
-		&& (cardNumberlength >= 12 && cardNumberlength <= 19))
+	else if ((firstPairOfDigits == 50 || (firstPairOfDigits >= 56 && firstPairOfDigits <= 69))
+		&& (length >= 12 && length <= 19))
 	{
 		return CreditCardVendor::MAESTRO;
 	}
-	else if ((firstSecondDigits >= 51 && firstSecondDigits <= 55)
-		&& cardNumberlength == 16)
+	else if ((firstPairOfDigits >= 51 && firstPairOfDigits <= 55)
+		&& length == 16)
 	{
 		return CreditCardVendor::MASTERCARD;
 	}
-	else if ((firstSecondDigits == 34 || firstSecondDigits == 37)
-		&& cardNumberlength == 15)
+	else if ((firstPairOfDigits == 34 || firstPairOfDigits == 37)
+		&& length == 15)
 	{
 		return CreditCardVendor::AMERICAN_EXPRESS;
 	}
-	else if (firstSecondDigits == 35
-		&& (thirdFourthDigits >= 28 && thirdFourthDigits <= 89)
-		&& cardNumberlength == 16)
+	else if (firstPairOfDigits == 35
+		&& (secondPairOfDigits >= 28 && secondPairOfDigits <= 89)
+		&& length == 16)
 	{
 		return CreditCardVendor::JCB;
 	}
@@ -66,6 +67,7 @@ CreditCardVendor GetCreditCardVendor(string &cardNumber)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	GetCreditCardVendor("4390 4566 4213 5673");
 	return 0;
 }
 
