@@ -21,6 +21,23 @@ enum class CreditCardVendor
 	JCB
 };
 
+void IncrementNumericalString(string& s)
+{
+	string::reverse_iterator iter = s.rbegin(), end = s.rend();
+	int carry = 1;
+	while (carry && iter != end)
+	{
+		int value = (*iter - '0') + carry;
+		carry = (value / 10);
+		*iter = '0' + (value % 10);
+		++iter;
+	}
+	if (carry)
+	{
+		s.insert(0, "1");
+	}
+}
+
 CreditCardVendor GetCreditCardVendor(const string &creditCardNumber)
 {
 	string number = creditCardNumber;
@@ -88,13 +105,51 @@ bool IsCreditCardNumberValid(const string &creditCardNumber)
 	return sum % 10 == 0;
 }
 
+string GenerateNextCreditCardNumber(const string &creditCardNumber)
+{
+	string number = creditCardNumber;
+	number.erase(remove_if(number.begin(), number.end(), isspace), number.end());
+	int length = number.length();
+
+	if (length < MIN_LENGTH || length > MAX_LENGTH || !all_of(number.begin(), number.end(), isdigit))
+	{
+		return "";
+	}
+	if (!IsCreditCardNumberValid(number))
+	{
+		bool isOdd = true;
+		int digit = 0;
+		int sum = 0;
+
+		reverse(number.begin(), number.end());
+		number.at(0) = '0';
+		for (char& c : number)
+		{
+			digit = c - '0';
+			sum += isOdd ? digit : digit / 5 + (2 * digit) % 10;
+			isOdd = !isOdd;
+		}
+		number.replace(0, 1, to_string(sum * 9 % 10));
+		reverse(number.begin(), number.end());
+		return number;
+	}
+	else
+	{
+		do 
+		{
+			IncrementNumericalString(number);
+		} while (!IsCreditCardNumberValid(number));
+		return number;
+	}
+}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 	cout << (int)GetCreditCardVendor("4390 4566 4213 5673") << endl;
 	cout << IsCreditCardNumberValid("4390 4566 4213 5673") << endl;
 	cout << IsCreditCardNumberValid("1234 5678 1234 5670") << endl;
-	
+	cout << GenerateNextCreditCardNumber("1234 5678 1234 5671") << endl;
+	cout << GenerateNextCreditCardNumber("1234 5678 1234 5670") << endl;
 	return 0;
 }
 
