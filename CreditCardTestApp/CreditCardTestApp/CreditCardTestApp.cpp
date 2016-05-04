@@ -138,6 +138,10 @@ string GenerateNextCreditCardNumber(const string &creditCardNumber)
 		do 
 		{
 			IncrementNumericalString(number);
+			if (number.length() > MAX_LENGTH)
+			{
+				return "";
+			}
 		} while (!IsCreditCardNumberValid(number));
 		return number;
 	}
