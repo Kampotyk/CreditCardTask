@@ -73,14 +73,14 @@ CreditCardVendor CreditCardTest::GetCreditCardVendor(const string &creditCardNum
 	string number = creditCardNumber;
 	number.erase(remove_if(number.begin(), number.end(), isspace), number.end());
 	int length = number.length();
-	int firstPairOfDigits = stoi(number.substr(0,2));
+	int firstPairOfDigits = stoi(number.substr(0, 2));
 	int secondPairOfDigits = stoi(number.substr(2, 2));
 
 	if (length < MIN_LENGTH || length > MAX_LENGTH || !all_of(number.begin(), number.end(), isdigit))
 	{
 		return CreditCardVendor::UNKNOWN;
 	}
-	else if (firstPairOfDigits/10 == 4
+	else if (firstPairOfDigits / 10 == 4
 		&& (length == 13 || length == 16 || length == 19))
 	{
 		return CreditCardVendor::VISA;
@@ -119,13 +119,12 @@ bool CreditCardTest::IsCreditCardNumberValid(const string &creditCardNumber)
 	int sum = 0;
 	string number = creditCardNumber;
 	number.erase(remove_if(number.begin(), number.end(), isspace), number.end());
-	reverse(number.begin(), number.end());
-
 	if (GetCreditCardVendor(number) == CreditCardVendor::UNKNOWN)
 	{
 		return false;
 	}
-	for (char& c : number) 
+	reverse(number.begin(), number.end());
+	for (char& c : number)
 	{
 		digit = c - '0';
 		sum += isOdd ? digit : digit / 5 + (2 * digit) % 10;
@@ -139,43 +138,47 @@ string CreditCardTest::GenerateNextCreditCardNumber(const string &creditCardNumb
 {
 	string number = creditCardNumber;
 	number.erase(remove_if(number.begin(), number.end(), isspace), number.end());
-	auto vendor = GetCreditCardVendor(number);
+	auto curVendor = GetCreditCardVendor(number);
 
-	if (vendor == CreditCardVendor::UNKNOWN)
+	if (curVendor == CreditCardVendor::UNKNOWN)
 	{
-		number = "";
+		return "";
 	}
-	else if(IsCreditCardNumberValid(number))
+	if (IsCreditCardNumberValid(number))
 	{
 		if (number.back() != '9')
 		{
 			number.back() = '9';
-	}
-		IncrementNumericalString(number);
-		if (number.length() > MAX_LENGTH)
-	{
-			number = "";
 		}
-		else if (!IsCreditCardNumberValid(number))
+		IncrementNumericalString(number);
+		if (GetCreditCardVendor(number) != curVendor)
+		{
+			return "";
+		}
+		if (!IsCreditCardNumberValid(number))
 		{
 			CorrectInvalidCreditCardNumber(number);
 		}
-
 	}
 	else
 	{
 		CorrectInvalidCreditCardNumber(number);
-			}
-		return number;
 	}
+	
+	return number;
+}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	//Examples of using
 	cout << (int)CreditCardTest::GetCreditCardVendor("4390 4566 4213 5673") << endl;
 	cout << CreditCardTest::IsCreditCardNumberValid("4390 4566 4213 5673") << endl;
 	cout << CreditCardTest::IsCreditCardNumberValid("1234 5678 1234 5670") << endl;
 	cout << CreditCardTest::GenerateNextCreditCardNumber("1234 5678 1234 5671") << endl;
 	cout << CreditCardTest::GenerateNextCreditCardNumber("1234 5678 1234 5670") << endl;
+	//Fixed Issues
 	cout << (int)CreditCardTest::GetCreditCardVendor("35301113333000001") << endl;
+	cout << CreditCardTest::IsCreditCardNumberValid("35301113333000001") << endl;
+	cout << CreditCardTest::GenerateNextCreditCardNumber("4999999999999999993") << endl;
 	return 0;
 }
