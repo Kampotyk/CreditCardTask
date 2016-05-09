@@ -21,9 +21,21 @@ enum class CreditCardVendor
 	JCB
 };
 
-void IncrementNumericalString(string& s)
+class CreditCardTest
 {
-	string::reverse_iterator iter = s.rbegin(), end = s.rend();
+private:
+	static void IncrementNumericalString(string &numString);
+	static void CorrectInvalidCreditCardNumber(string &number);
+
+public:
+	static CreditCardVendor GetCreditCardVendor(const string &creditCardNumber);
+	static bool IsCreditCardNumberValid(const string &creditCardNumber);
+	static string GenerateNextCreditCardNumber(const string &creditCardNumber);
+};
+
+void CreditCardTest::IncrementNumericalString(string &numString)
+{
+	string::reverse_iterator iter = numString.rbegin(), end = numString.rend();
 	int carry = 1;
 	while (carry && iter != end)
 	{
@@ -34,11 +46,29 @@ void IncrementNumericalString(string& s)
 	}
 	if (carry)
 	{
-		s.insert(0, "1");
+		numString.insert(0, "1");
 	}
 }
 
-CreditCardVendor GetCreditCardVendor(const string &creditCardNumber)
+void CreditCardTest::CorrectInvalidCreditCardNumber(string &number)
+{
+	bool isOdd = true;
+	int digit = 0;
+	int sum = 0;
+
+	reverse(number.begin(), number.end());
+	number.at(0) = '0';
+	for (char& c : number)
+	{
+		digit = c - '0';
+		sum += isOdd ? digit : digit / 5 + (2 * digit) % 10;
+		isOdd = !isOdd;
+	}
+	number.replace(0, 1, to_string(sum * 9 % 10));
+	reverse(number.begin(), number.end());
+}
+
+CreditCardVendor CreditCardTest::GetCreditCardVendor(const string &creditCardNumber)
 {
 	string number = creditCardNumber;
 	number.erase(remove_if(number.begin(), number.end(), isspace), number.end());
@@ -82,7 +112,7 @@ CreditCardVendor GetCreditCardVendor(const string &creditCardNumber)
 	}
 }
 
-bool IsCreditCardNumberValid(const string &creditCardNumber)
+bool CreditCardTest::IsCreditCardNumberValid(const string &creditCardNumber)
 {
 	bool isOdd = true;
 	int digit = 0;
@@ -104,7 +134,8 @@ bool IsCreditCardNumberValid(const string &creditCardNumber)
 	return sum % 10 == 0;
 }
 
-string GenerateNextCreditCardNumber(const string &creditCardNumber)
+
+string CreditCardTest::GenerateNextCreditCardNumber(const string &creditCardNumber)
 {
 	string number = creditCardNumber;
 	number.erase(remove_if(number.begin(), number.end(), isspace), number.end());
@@ -112,47 +143,39 @@ string GenerateNextCreditCardNumber(const string &creditCardNumber)
 
 	if (vendor == CreditCardVendor::UNKNOWN)
 	{
-		return "";
+		number = "";
 	}
-	if (!IsCreditCardNumberValid(number))
+	else if(IsCreditCardNumberValid(number))
 	{
-		bool isOdd = true;
-		int digit = 0;
-		int sum = 0;
-
-		reverse(number.begin(), number.end());
-		number.at(0) = '0';
-		for (char& c : number)
+		if (number.back() != '9')
 		{
-			digit = c - '0';
-			sum += isOdd ? digit : digit / 5 + (2 * digit) % 10;
-			isOdd = !isOdd;
+			number.back() = '9';
+	}
+		IncrementNumericalString(number);
+		if (number.length() > MAX_LENGTH)
+	{
+			number = "";
 		}
-		number.replace(0, 1, to_string(sum * 9 % 10));
-		reverse(number.begin(), number.end());
-		return number;
+		else if (!IsCreditCardNumberValid(number))
+		{
+			CorrectInvalidCreditCardNumber(number);
+		}
+
 	}
 	else
 	{
-		do 
-		{
-			IncrementNumericalString(number);
-			if (number.length() > MAX_LENGTH)
-			{
-				return "";
+		CorrectInvalidCreditCardNumber(number);
 			}
-		} while (!IsCreditCardNumberValid(number));
 		return number;
 	}
-}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	cout << (int)GetCreditCardVendor("4390 4566 4213 5673") << endl;
-	cout << IsCreditCardNumberValid("4390 4566 4213 5673") << endl;
-	cout << IsCreditCardNumberValid("1234 5678 1234 5670") << endl;
-	cout << GenerateNextCreditCardNumber("1234 5678 1234 5671") << endl;
-	cout << GenerateNextCreditCardNumber("1234 5678 1234 5670") << endl;
-	cout << (int)GetCreditCardVendor("35301113333000001") << endl;
+	cout << (int)CreditCardTest::GetCreditCardVendor("4390 4566 4213 5673") << endl;
+	cout << CreditCardTest::IsCreditCardNumberValid("4390 4566 4213 5673") << endl;
+	cout << CreditCardTest::IsCreditCardNumberValid("1234 5678 1234 5670") << endl;
+	cout << CreditCardTest::GenerateNextCreditCardNumber("1234 5678 1234 5671") << endl;
+	cout << CreditCardTest::GenerateNextCreditCardNumber("1234 5678 1234 5670") << endl;
+	cout << (int)CreditCardTest::GetCreditCardVendor("35301113333000001") << endl;
 	return 0;
 }

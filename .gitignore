@@ -154,3 +154,5 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+/CreditCardTestApp/CreditCardTestApp.VC.db
+/CreditCardTestApp/CreditCardTestApp.VC.VC.opendb
