@@ -90,9 +90,8 @@ bool IsCreditCardNumberValid(const string &creditCardNumber)
 	string number = creditCardNumber;
 	number.erase(remove_if(number.begin(), number.end(), isspace), number.end());
 	reverse(number.begin(), number.end());
-	int length = number.length();
 
-	if (length < MIN_LENGTH || length > MAX_LENGTH || !all_of(number.begin(), number.end(), isdigit))
+	if (GetCreditCardVendor(number) == CreditCardVendor::UNKNOWN)
 	{
 		return false;
 	}
@@ -109,9 +108,9 @@ string GenerateNextCreditCardNumber(const string &creditCardNumber)
 {
 	string number = creditCardNumber;
 	number.erase(remove_if(number.begin(), number.end(), isspace), number.end());
-	int length = number.length();
+	auto vendor = GetCreditCardVendor(number);
 
-	if (length < MIN_LENGTH || length > MAX_LENGTH || !all_of(number.begin(), number.end(), isdigit))
+	if (vendor == CreditCardVendor::UNKNOWN)
 	{
 		return "";
 	}
@@ -154,6 +153,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	cout << IsCreditCardNumberValid("1234 5678 1234 5670") << endl;
 	cout << GenerateNextCreditCardNumber("1234 5678 1234 5671") << endl;
 	cout << GenerateNextCreditCardNumber("1234 5678 1234 5670") << endl;
+	cout << (int)GetCreditCardVendor("35301113333000001") << endl;
 	return 0;
 }
-
